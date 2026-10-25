@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  selenium-chrome:
+    image: selenium/standalone-chrome:4.25.0
+    container_name: selenium-chrome
+    shm_size: "2gb"
+    ports:
+      - "4444:4444"
+      - "7900:7900" # noVNC를 통한 실시간 브라우저 화면 모니터링 포트 (비밀번호: secret)
+    environment:
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_VNC_NO_PASSWORD=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  qa-test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: albamon-qa-runner
+    depends_on:
+      selenium-chrome:
+        condition: service_healthy
+    environment:
+      - RUN_ENV=remote
+      - SELENIUM_REMOTE_URL=http://selenium-chrome:4444/wd/hub
+      - HEADLESS=true
+      - BASE_URL=https://www.albamon.com
+    volumes:
+      - ./reports:/app/reports
+    command: pytest -v -s --html=reports/report.html --self-contained-html

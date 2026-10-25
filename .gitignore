@@ -1,0 +1,15 @@
+# Python 캐시 및 가상환경 제외
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# OS 및 에디터 설정 파일 제외
+.DS_Store
+.idea/
+.vscode/
+
+# 테스트 리포트 및 실패 스크린샷 제외 (필요시 주석 처리하여 샘플로 1개만 올려도 됨)
+reports/
